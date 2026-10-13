@@ -11,6 +11,10 @@
     "body.rita-cms-editing #main-header,body.rita-cms-editing #main-header.et-fixed-header{top:var(--rita-cms-bar-h,58px)!important}",
     "[data-rita-block].rita-cms-editable{outline:2px dashed rgba(182,78,216,.55);outline-offset:3px;min-height:1em}",
     "[data-rita-block].rita-cms-editable:focus{outline:2px solid #b64ed8}",
+    ".rita-cms-link-wrap{display:inline-flex;align-items:center;vertical-align:middle;margin-left:6px;user-select:none}",
+    ".rita-cms-open-link{appearance:none;position:relative;z-index:100002;width:26px;height:26px;margin:0;padding:0;border:0;border-radius:999px;background:#b64ed8;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.2);opacity:.92;flex:0 0 auto}",
+    ".rita-cms-open-link:hover,.rita-cms-open-link:focus{opacity:1;outline:2px solid #fff;outline-offset:1px}",
+    ".rita-cms-open-link svg{width:14px;height:14px;display:block}",
     "#rita-cms-modal-bg{position:fixed;inset:0;background:rgba(10,8,14,.55);z-index:100001;display:none;align-items:center;justify-content:center;padding:16px}",
     "#rita-cms-modal-bg.rita-cms-open{display:flex}",
     "#rita-cms-modal{width:min(520px,100%);background:#fff;color:#333;border-radius:14px;padding:20px;max-height:90vh;overflow:auto}",
@@ -21,6 +25,12 @@
     "#rita-cms-modal .rita-cms-row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}",
     "@media (max-width:700px){#rita-cms-bar{align-items:flex-start}}"
   ].join("");
+
+  var OPEN_LINK_ICON =
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+    '<path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3z"/>' +
+    '<path fill="currentColor" d="M5 5h6v2H7v10h10v-4h2v6H5V5z"/>' +
+    "</svg>";
 
   var state = {
     user: null,
@@ -44,12 +54,84 @@
   function collectBlocks() {
     var blocks = [];
     document.querySelectorAll("[data-rita-block]").forEach(function (el) {
+      var clone = el.cloneNode(true);
+      clone.querySelectorAll(".rita-cms-link-wrap,.rita-cms-open-link").forEach(function (node) {
+        node.parentNode.removeChild(node);
+      });
       blocks.push({
         block_key: el.getAttribute("data-rita-block"),
-        html: el.innerHTML
+        html: clone.innerHTML
       });
     });
     return blocks;
+  }
+
+  function isNavigableHref(href) {
+    if (!href) return false;
+    var value = String(href).trim();
+    if (!value || value === "#" || value.indexOf("javascript:") === 0) return false;
+    return true;
+  }
+
+  function openEditableLink(anchor) {
+    if (!anchor || !anchor.href) return;
+    window.location.href = anchor.href;
+  }
+
+  function attachOpenLinkControls() {
+    document.querySelectorAll("[data-rita-block].rita-cms-editable a[href]").forEach(function (anchor) {
+      if (!isNavigableHref(anchor.getAttribute("href"))) return;
+      if (anchor.dataset.ritaCmsLinkReady === "1") return;
+      anchor.dataset.ritaCmsLinkReady = "1";
+      anchor.title = (anchor.title ? anchor.title + " · " : "") + "Ctrl/Cmd o Alt + clic para abrir";
+
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "rita-cms-open-link";
+      btn.setAttribute("aria-label", "Abrir enlace para revisar o editar");
+      btn.title = "Abrir enlace";
+      btn.innerHTML = OPEN_LINK_ICON;
+      btn.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        openEditableLink(anchor);
+      });
+
+      // contentEditable=false: el botón no se edita; collectBlocks lo elimina al guardar.
+      var wrap = document.createElement("span");
+      wrap.className = "rita-cms-link-wrap";
+      wrap.contentEditable = "false";
+      wrap.appendChild(btn);
+      if (anchor.nextSibling) anchor.parentNode.insertBefore(wrap, anchor.nextSibling);
+      else anchor.parentNode.appendChild(wrap);
+    });
+  }
+
+  function enableLinkNavigation() {
+    document.addEventListener(
+      "click",
+      function (ev) {
+        if (!document.body.classList.contains("rita-cms-editing")) return;
+        var anchor = ev.target && ev.target.closest ? ev.target.closest("a[href]") : null;
+        if (!anchor || !anchor.closest("[data-rita-block].rita-cms-editable")) return;
+        if (!isNavigableHref(anchor.getAttribute("href"))) return;
+        if (!(ev.ctrlKey || ev.metaKey || ev.altKey)) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        openEditableLink(anchor);
+      },
+      true
+    );
+
+    document.addEventListener("auxclick", function (ev) {
+      if (!document.body.classList.contains("rita-cms-editing")) return;
+      if (ev.button !== 1) return;
+      var anchor = ev.target && ev.target.closest ? ev.target.closest("a[href]") : null;
+      if (!anchor || !anchor.closest("[data-rita-block].rita-cms-editable")) return;
+      if (!isNavigableHref(anchor.getAttribute("href"))) return;
+      ev.preventDefault();
+      openEditableLink(anchor);
+    });
   }
 
   function enableEditing() {
@@ -62,6 +144,8 @@
         setStatus("Cambios sin guardar");
       });
     });
+    attachOpenLinkControls();
+    enableLinkNavigation();
   }
 
   function saveBlocks() {
@@ -219,7 +303,7 @@
     createBar();
     createModal();
     enableEditing();
-    setStatus("Listo para editar");
+    setStatus("Listo · clic en ↗ o Ctrl/Alt+clic para abrir enlaces");
   }
 
   function maybeStart() {
