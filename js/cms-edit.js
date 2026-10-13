@@ -7,7 +7,8 @@
     "#rita-cms-bar .rita-cms-secondary{background:rgba(255,255,255,.12);color:#fff}",
     "#rita-cms-bar .rita-cms-danger{background:#e35d6a;color:#fff}",
     "#rita-cms-bar .rita-cms-status{font-size:13px;opacity:.9;margin-right:8px}",
-    "body.rita-cms-editing{padding-top:58px}",
+    "body.rita-cms-editing{padding-top:var(--rita-cms-bar-h,58px)}",
+    "body.rita-cms-editing #main-header,body.rita-cms-editing #main-header.et-fixed-header{top:var(--rita-cms-bar-h,58px)!important}",
     "[data-rita-block].rita-cms-editable{outline:2px dashed rgba(182,78,216,.55);outline-offset:3px;min-height:1em}",
     "[data-rita-block].rita-cms-editable:focus{outline:2px solid #b64ed8}",
     "#rita-cms-modal-bg{position:fixed;inset:0;background:rgba(10,8,14,.55);z-index:100001;display:none;align-items:center;justify-content:center;padding:16px}",
@@ -107,6 +108,12 @@
     if (bg) bg.classList.remove("rita-cms-open");
   }
 
+  function syncBarOffset() {
+    var bar = document.getElementById("rita-cms-bar");
+    if (!bar) return;
+    document.documentElement.style.setProperty("--rita-cms-bar-h", bar.offsetHeight + "px");
+  }
+
   function createBar() {
     if (document.getElementById("rita-cms-bar")) return;
     var bar = document.createElement("div");
@@ -124,6 +131,8 @@
     document.getElementById("rita-cms-save").addEventListener("click", saveBlocks);
     document.getElementById("rita-cms-add").addEventListener("click", openEntryModal);
     document.getElementById("rita-cms-logout").addEventListener("click", logout);
+    syncBarOffset();
+    window.addEventListener("resize", syncBarOffset);
   }
 
   function createModal() {
