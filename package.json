@@ -1,0 +1,19 @@
+{
+  "name": "rita-valero-cms",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CMS ligero para Rita Valero (Cloudflare Pages + D1 + JWT)",
+  "scripts": {
+    "cms:migrate-html": "node scripts/cms-migrate-html.js",
+    "cms:seed-admin": "node scripts/cms-seed-admin.js",
+    "cms:hash-password": "node scripts/cms-hash-password.js",
+    "db:migrate:local": "wrangler d1 migrations apply rita-cms --local --persist-to=.wrangler/state",
+    "db:migrate:remote": "wrangler d1 migrations apply rita-cms --remote",
+    "dev": "wrangler pages dev . --persist-to=.wrangler/state"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261006.1",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.40.0"
+  }
+}

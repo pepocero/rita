@@ -1,4 +1,14 @@
-# Archivos > 25 MiB: en R2 (ver _redirects). Se mantienen en el disco local.
+node_modules/
+.wrangler/
+.dev.vars
+.mf/
+dist/
+*.log
+.DS_Store
+scripts/.cms-seed-cache.json
+scripts/.seed-admin-*.sql
+
+# Archivos >25 MiB: viven en R2 (ritavalero-medios) y se sirven vía _redirects
 wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-20.mp3
 wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-21.mp3
 wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-22.mp3
@@ -11,3 +21,4 @@ wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-30.mp3
 wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-31.mp3
 wp-content/uploads/2022/01/TV31.mp4
 wp-content/uploads/2022/03/InShot_20220312_080906537.mp4
+

@@ -1,0 +1,19 @@
+# No subir a Pages (límite 25 MiB). Ya están desde R2 vía _redirects.
+node_modules/
+.wrangler/
+.dev.vars
+.git/
+wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-20.mp3
+wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-21.mp3
+wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-22.mp3
+wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-23.mp3
+wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-24.mp3
+wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-27.mp3
+wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-28.mp3
+wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-29.mp3
+wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-30.mp3
+wp-content/uploads/2021/12/Xarrups-dEstiu-2018-08-31.mp3
+wp-content/uploads/2022/01/TV31.mp4
+wp-content/uploads/2022/03/InShot_20220312_080906537.mp4
+scripts/.cms-seed-cache.json
+scripts/.seed-admin-*.sql

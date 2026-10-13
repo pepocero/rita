@@ -1,0 +1,17 @@
+name = "rita"
+compatibility_date = "2026-10-13"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "rita-cms"
+database_id = "fc45335e-7487-4fe7-8f8b-bff624f5735f"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "ritavalero-medios"
+
+[vars]
+# Secrets (JWT_SECRET, CMS_ADMIN_USER, CMS_ADMIN_PASSWORD) se configuran
+# en Cloudflare Pages, no aquí. Ver docs/CMS-DEPLOY.md.

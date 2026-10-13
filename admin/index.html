@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Administración | Rita Valero</title>
+  <link rel="icon" href="../wp-content/uploads/2021/08/cropped-favicon-rita-valero-32x32.jpg" sizes="32x32" />
+  <style>
+    :root {
+      --bg: #14121a;
+      --card: #1f1b28;
+      --text: #f4f0f8;
+      --muted: #b8aec8;
+      --accent: #b64ed8;
+      --accent-dark: #9a3bc0;
+      --danger: #e35d6a;
+      --ok: #4caf7a;
+      --border: rgba(255,255,255,.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(900px 500px at 10% -10%, rgba(182,78,216,.28), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(90,40,140,.35), transparent 55%),
+        var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(420px, 100%);
+      background: color-mix(in srgb, var(--card) 92%, black);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 26px 24px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.35);
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.45rem;
+      letter-spacing: .02em;
+    }
+    p.lead {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: .95rem;
+      line-height: 1.45;
+    }
+    label {
+      display: block;
+      font-size: .85rem;
+      margin: 0 0 6px;
+      color: var(--muted);
+    }
+    input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      margin-bottom: 14px;
+    }
+    input:focus {
+      outline: 2px solid color-mix(in srgb, var(--accent) 70%, white);
+      outline-offset: 1px;
+    }
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+    }
+    button:hover { background: var(--accent-dark); }
+    button:disabled { opacity: .65; cursor: wait; }
+    .msg {
+      min-height: 1.25rem;
+      margin: 12px 0 0;
+      font-size: .9rem;
+    }
+    .msg.error { color: var(--danger); }
+    .msg.ok { color: var(--ok); }
+    .links {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: .9rem;
+    }
+    .links a { color: var(--muted); text-decoration: none; }
+    .links a:hover { color: #fff; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div id="panel-login" class="panel active">
+      <h1>Administración</h1>
+      <p class="lead">Accede para editar textos y añadir contenidos en la web.</p>
+      <form id="login-form" autocomplete="on">
+        <label for="username">Usuario</label>
+        <input id="username" name="username" type="text" autocomplete="username" required maxlength="64" />
+        <label for="password">Contraseña</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required maxlength="200" />
+        <button type="submit" id="login-btn">Entrar</button>
+      </form>
+      <p id="login-msg" class="msg" role="status"></p>
+      <div class="links">
+        <a href="../index.html">Volver al sitio</a>
+      </div>
+    </div>
+
+    <div id="panel-ready" class="panel">
+      <h1>Modo edición listo</h1>
+      <p class="lead">Sesión iniciada como <strong id="who"></strong>. Navega por la web y edita los textos marcados. Usa la barra superior para guardar o salir.</p>
+      <button type="button" id="go-site">Ir al inicio y editar</button>
+      <p id="ready-msg" class="msg" role="status"></p>
+      <div class="links">
+        <a href="../index.html">Inicio</a>
+        <a href="#" id="logout-link">Cerrar sesión</a>
+      </div>
+    </div>
+  </main>
+  <script>
+    (function () {
+      var loginPanel = document.getElementById("panel-login");
+      var readyPanel = document.getElementById("panel-ready");
+      var loginMsg = document.getElementById("login-msg");
+      var readyMsg = document.getElementById("ready-msg");
+      var who = document.getElementById("who");
+      var loginBtn = document.getElementById("login-btn");
+
+      function showReady(user) {
+        loginPanel.classList.remove("active");
+        readyPanel.classList.add("active");
+        who.textContent = user.username;
+        try { sessionStorage.setItem("rita_cms_edit", "1"); } catch (e) {}
+      }
+
+      function showLogin(message) {
+        readyPanel.classList.remove("active");
+        loginPanel.classList.add("active");
+        if (message) {
+          loginMsg.textContent = message;
+          loginMsg.className = "msg error";
+        }
+        try { sessionStorage.removeItem("rita_cms_edit"); } catch (e) {}
+      }
+
+      fetch("/api/auth/me", { credentials: "same-origin" })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          if (res.ok && res.j && res.j.user) showReady(res.j.user);
+        })
+        .catch(function () {});
+
+      document.getElementById("login-form").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        loginMsg.textContent = "";
+        loginMsg.className = "msg";
+        loginBtn.disabled = true;
+        fetch("/api/auth/login", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value
+          })
+        })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          .then(function (res) {
+            if (!res.ok || !res.j.ok) throw new Error((res.j && res.j.error) || "No se pudo iniciar sesión");
+            showReady(res.j.user);
+            readyMsg.textContent = "Sesión iniciada correctamente.";
+            readyMsg.className = "msg ok";
+          })
+          .catch(function (err) {
+            loginMsg.textContent = err.message || "Error de acceso";
+            loginMsg.className = "msg error";
+          })
+          .finally(function () { loginBtn.disabled = false; });
+      });
+
+      document.getElementById("go-site").addEventListener("click", function () {
+        window.location.href = "../index.html";
+      });
+
+      document.getElementById("logout-link").addEventListener("click", function (ev) {
+        ev.preventDefault();
+        fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
+          .finally(function () { showLogin("Sesión cerrada."); });
+      });
+    })();
+  </script>
+</body>
+</html>

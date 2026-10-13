@@ -1,0 +1,12 @@
+# Copia este archivo a `.dev.vars` para desarrollo local (no lo subas a Git).
+# Genera un secreto largo, por ejemplo:
+#   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+JWT_SECRET=cambia-esto-por-un-secreto-largo-aleatorio
+
+# Bootstrap del primer admin (solo si la tabla users está vacía)
+CMS_ADMIN_USER=admin
+CMS_ADMIN_PASSWORD=EligeUnaClaveLargaYUnica
+# CMS_ADMIN_FORCE=1
+
+# Opcional: URL pública del bucket R2 si usas dominio r2.dev / custom
+# PUBLIC_MEDIA_BASE=https://pub-xxxxx.r2.dev
