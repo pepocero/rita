@@ -1,4 +1,5 @@
 import { error, isAllowedOrigin, json, requireAuth } from "../_shared/http";
+import { ensureSchema } from "../_shared/schema";
 import type { Env } from "../_shared/types";
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -7,6 +8,7 @@ const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/g
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
   if (!isAllowedOrigin(request)) return error("Origen no permitido", 403);
+  await ensureSchema(env);
   const auth = await requireAuth(request, env);
   if (auth instanceof Response) return auth;
   if (!env.MEDIA) return error("R2 no configurado (binding MEDIA)", 500);

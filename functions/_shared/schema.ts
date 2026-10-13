@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   username TEXT NOT NULL UNIQUE COLLATE NOCASE,
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,
+  token_version INTEGER NOT NULL DEFAULT 1,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE TABLE IF NOT EXISTS content_blocks (
@@ -47,6 +48,16 @@ CREATE TABLE IF NOT EXISTS login_attempts (
 CREATE INDEX IF NOT EXISTS idx_login_attempts_ip_time ON login_attempts(ip, attempted_at);
 `;
 
+async function ensureUserTokenVersion(env: Env): Promise<void> {
+  const info = await env.DB.prepare("PRAGMA table_info(users)").all<{ name: string }>();
+  const hasTv = (info.results || []).some((col) => col.name === "token_version");
+  if (!hasTv) {
+    await env.DB.prepare(
+      "ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 1"
+    ).run();
+  }
+}
+
 /** Ensures CMS tables exist (safe to call repeatedly). Helps local Pages/D1 mismatches. */
 export async function ensureSchema(env: Env): Promise<void> {
   if (schemaReady) return;
@@ -55,5 +66,6 @@ export async function ensureSchema(env: Env): Promise<void> {
     .filter(Boolean)
     .map((sql) => env.DB.prepare(sql));
   await env.DB.batch(statements);
+  await ensureUserTokenVersion(env);
   schemaReady = true;
 }

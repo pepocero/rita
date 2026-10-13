@@ -84,6 +84,18 @@ npx wrangler pages secret put CMS_ADMIN_PASSWORD --project-name=NOMBRE_PROYECTO_
 
 Al primer login contra una DB vacía, se crea el admin. Después puedes **eliminar** el secret `CMS_ADMIN_PASSWORD`.
 
+### Cambiar contraseña (recomendado)
+
+Desde `/admin/` (sesión iniciada): formulario **Cambiar contraseña**.
+
+- Exige la contraseña actual + nueva (mín. 12 caracteres, diversidad)
+- Rate-limit por IP/usuario
+- Nuevo salt + hash PBKDF2
+- Invalida el resto de sesiones (`token_version` en JWT)
+- Tras cambiarla, **elimina** el secret `CMS_ADMIN_PASSWORD` en Cloudflare para que nadie pueda re-bootstrapear con la clave antigua
+
+Migración D1: `migrations/0002_user_token_version.sql` (también se aplica en runtime vía `ensureSchema`).
+
 Si necesitas recrear el admin (cambio de hash/iteraciones), usa temporalmente el secret `CMS_ADMIN_FORCE=1` y quítalo al terminar.
 
 ### Opción B — seed manual D1

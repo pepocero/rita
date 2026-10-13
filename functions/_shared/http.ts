@@ -94,11 +94,14 @@ export async function requireAuth(
   const payload = await verifyJwt<JwtPayload>(token, env.JWT_SECRET);
   if (!payload?.sub || !payload.username) return error("Sesión inválida", 401);
   const user = await env.DB.prepare(
-    "SELECT id, username, password_hash, password_salt FROM users WHERE id = ? LIMIT 1"
+    "SELECT id, username, password_hash, password_salt, token_version FROM users WHERE id = ? LIMIT 1"
   )
     .bind(payload.sub)
     .first<UserRow>();
   if (!user) return error("Usuario no encontrado", 401);
+  const tokenVersion = user.token_version ?? 1;
+  const payloadVersion = payload.tv ?? 1;
+  if (tokenVersion !== payloadVersion) return error("Sesión invalidada. Vuelve a iniciar sesión.", 401);
   return { user, payload };
 }
 

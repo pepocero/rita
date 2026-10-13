@@ -45,11 +45,22 @@
       font-size: 1.45rem;
       letter-spacing: .02em;
     }
+    h2 {
+      margin: 22px 0 8px;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
     p.lead {
       margin: 0 0 22px;
       color: var(--muted);
       font-size: .95rem;
       line-height: 1.45;
+    }
+    p.hint {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.4;
     }
     label {
       display: block;
@@ -102,6 +113,11 @@
     .links a:hover { color: #fff; }
     .panel { display: none; }
     .panel.active { display: block; }
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 22px 0 4px;
+    }
   </style>
 </head>
 <body>
@@ -127,6 +143,21 @@
       <p class="lead">Sesión iniciada como <strong id="who"></strong>. Navega por la web y edita los textos marcados. Usa la barra superior para guardar o salir.</p>
       <button type="button" id="go-site">Ir al inicio y editar</button>
       <p id="ready-msg" class="msg" role="status"></p>
+
+      <div class="divider"></div>
+      <h2>Cambiar contraseña</h2>
+      <p class="hint">Mínimo 12 caracteres, con al menos 3 de: minúsculas, mayúsculas, números y símbolos. Tras el cambio, las demás sesiones se invalidan.</p>
+      <form id="password-form" autocomplete="off">
+        <label for="current-password">Contraseña actual</label>
+        <input id="current-password" name="current-password" type="password" autocomplete="current-password" required maxlength="200" />
+        <label for="new-password">Nueva contraseña</label>
+        <input id="new-password" name="new-password" type="password" autocomplete="new-password" required minlength="12" maxlength="200" />
+        <label for="confirm-password">Confirmar nueva contraseña</label>
+        <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" required minlength="12" maxlength="200" />
+        <button type="submit" id="password-btn">Actualizar contraseña</button>
+      </form>
+      <p id="password-msg" class="msg" role="status"></p>
+
       <div class="links">
         <a href="../index.html">Inicio</a>
         <a href="#" id="logout-link">Cerrar sesión</a>
@@ -139,8 +170,11 @@
       var readyPanel = document.getElementById("panel-ready");
       var loginMsg = document.getElementById("login-msg");
       var readyMsg = document.getElementById("ready-msg");
+      var passwordMsg = document.getElementById("password-msg");
       var who = document.getElementById("who");
       var loginBtn = document.getElementById("login-btn");
+      var passwordBtn = document.getElementById("password-btn");
+      var passwordForm = document.getElementById("password-form");
 
       function showReady(user) {
         loginPanel.classList.remove("active");
@@ -152,6 +186,9 @@
       function showLogin(message) {
         readyPanel.classList.remove("active");
         loginPanel.classList.add("active");
+        passwordForm.reset();
+        passwordMsg.textContent = "";
+        passwordMsg.className = "msg";
         if (message) {
           loginMsg.textContent = message;
           loginMsg.className = "msg error";
@@ -186,12 +223,50 @@
             showReady(res.j.user);
             readyMsg.textContent = "Sesión iniciada correctamente.";
             readyMsg.className = "msg ok";
+            document.getElementById("password").value = "";
           })
           .catch(function (err) {
             loginMsg.textContent = err.message || "Error de acceso";
             loginMsg.className = "msg error";
           })
           .finally(function () { loginBtn.disabled = false; });
+      });
+
+      passwordForm.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        passwordMsg.textContent = "";
+        passwordMsg.className = "msg";
+        var currentPassword = document.getElementById("current-password").value;
+        var newPassword = document.getElementById("new-password").value;
+        var confirmPassword = document.getElementById("confirm-password").value;
+        if (newPassword !== confirmPassword) {
+          passwordMsg.textContent = "La confirmación no coincide con la nueva contraseña";
+          passwordMsg.className = "msg error";
+          return;
+        }
+        passwordBtn.disabled = true;
+        fetch("/api/auth/change-password", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            current_password: currentPassword,
+            new_password: newPassword,
+            confirm_password: confirmPassword
+          })
+        })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          .then(function (res) {
+            if (!res.ok || !res.j.ok) throw new Error((res.j && res.j.error) || "No se pudo cambiar la contraseña");
+            passwordForm.reset();
+            passwordMsg.textContent = res.j.message || "Contraseña actualizada.";
+            passwordMsg.className = "msg ok";
+          })
+          .catch(function (err) {
+            passwordMsg.textContent = err.message || "Error al cambiar la contraseña";
+            passwordMsg.className = "msg error";
+          })
+          .finally(function () { passwordBtn.disabled = false; });
       });
 
       document.getElementById("go-site").addEventListener("click", function () {

@@ -1,7 +1,9 @@
 import { error, json, requireAuth } from "../../_shared/http";
+import { ensureSchema } from "../../_shared/schema";
 import type { Env } from "../../_shared/types";
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
+  await ensureSchema(context.env);
   const auth = await requireAuth(context.request, context.env);
   if (auth instanceof Response) return auth;
   return json({

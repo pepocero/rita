@@ -56,7 +56,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
 
     const user = await env.DB.prepare(
-      "SELECT id, username, password_hash, password_salt FROM users WHERE username = ? LIMIT 1"
+      "SELECT id, username, password_hash, password_salt, token_version FROM users WHERE username = ? LIMIT 1"
     )
       .bind(username)
       .first<UserRow>();
@@ -82,6 +82,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       {
         sub: user.id,
         username: user.username,
+        tv: user.token_version ?? 1,
         iat: now,
         exp: now + SESSION_TTL_SECONDS,
       },

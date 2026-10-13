@@ -16,6 +16,8 @@ export type UserRow = {
   username: string;
   password_hash: string;
   password_salt: string;
+  /** Incrementa al cambiar la contraseña; debe coincidir con el JWT (`tv`). */
+  token_version?: number;
 };
 
 export type JwtPayload = {
@@ -23,6 +25,8 @@ export type JwtPayload = {
   username: string;
   iat: number;
   exp: number;
+  /** Versión de credenciales; invalida sesiones previas tras cambio de contraseña. */
+  tv?: number;
 };
 
 export type ContentBlockRow = {
