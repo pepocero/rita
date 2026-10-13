@@ -87,6 +87,22 @@ a,abbr,acronym,address,applet,b,big,blockquote,body,center,cite,code,dd,del,dfn,
 /*# sourceURL=wp-block-library-inline-css */
 </style>
 
+<style id="rita-footer-estilo">#footer-info a.rita-footer-credit,#footer-info a.rita-footer-credit:hover,#footer-info a.rita-footer-credit:focus,#footer-info a.rita-footer-credit:visited{text-decoration:none;border:0;outline:0;box-shadow:none;color:inherit}</style>
+<style id="rita-contacto-scroll">
+/* Contacto es corta: si la cabecera fija de Divi se encoge al scroll, el pie parpadea y salta.
+   Mantener la misma altura evita ese recalculo. */
+body.page-id-40.et-fixed-header #et-top-navigation,
+body.page-id-40 #main-header.et-fixed-header #et-top-navigation{
+  padding-top:33px !important;
+}
+body.page-id-40.et-fixed-header #et-top-navigation nav>ul>li>a,
+body.page-id-40 #main-header.et-fixed-header #et-top-navigation nav>ul>li>a{
+  padding-bottom:33px !important;
+}
+body.page-id-40 #main-content{
+  padding-bottom:80px;
+}
+</style>
 </head>
 <body class="wp-singular page-template-default page page-id-40 wp-theme-Divi wp-child-theme-Divi-child et_pb_button_helper_class et_fullwidth_nav et_fixed_nav et_show_nav et_primary_nav_dropdown_animation_fade et_secondary_nav_dropdown_animation_fade et_header_style_left et_pb_footer_columns1 et_cover_background et_pb_gutter et_pb_gutters3 et_pb_pagebuilder_layout et_no_sidebar et_divi_theme et-db">
 	<div id="page-container">
@@ -101,7 +117,7 @@ a,abbr,acronym,address,applet,b,big,blockquote,body,center,cite,code,dd,del,dfn,
 						<img src="../wp-content/uploads/2021/08/logo-rita-valero-1.jpg" width="93" height="43" alt="Rita Valero" id="logo" data-height-percentage="54" />
 					</a>
 				</div>
-							<div id="et-top-navigation" data-height="66" data-fixed-height="40">
+							<div id="et-top-navigation" data-height="66" data-fixed-height="66">
 											<nav id="top-menu-nav">
 						<ul id="top-menu" class="nav"><li id="menu-item-39" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home menu-item-39"><a href="../index.html">Inicio</a></li>
 <li id="menu-item-57" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-57"><a href="../rita-valero/index.html">Rita Valero</a></li>
@@ -276,7 +292,7 @@ a,abbr,acronym,address,applet,b,big,blockquote,body,center,cite,code,dd,del,dfn,
 		
 				<div id="footer-bottom">
 					<div class="container clearfix">
-				<div id="footer-info">©2021 Rita Valero - <a target="_blank" href="https://2mundoweb.com/"> DISEÑO Y DESARROLLO WEB POR 2MUNDOWEB</a></div>					</div>
+				<div id="footer-info">©2026 Rita Valero - DISEÑO Y DESARROLLO WEB POR <a class="rita-footer-credit" href="https://www.carlinitools.com" target="_blank" rel="noopener noreferrer">CARLINITOOLS</a></div>					</div>
 				</div>
 			</footer>
 		</div>
